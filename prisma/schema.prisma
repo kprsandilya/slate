@@ -26,6 +26,33 @@ model Post {
     @@index([name])
 }
 
+model Novel {
+    id        Int      @id @default(autoincrement())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    createdBy   User   @relation(fields: [createdById], references: [id])
+    createdById String
+
+    chapters    Chapter[]
+
+    @@index([name])
+}
+
+model Chapter {
+    id        Int      @id @default(autoincrement())
+    kr        String
+    eng       String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    novel     Novel   @relation(fields: [novelId], references: [id])
+    novelId   Int
+
+    @@index([eng])
+}
+
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -63,6 +90,8 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+
+    novels        Novel[]
 }
 
 model VerificationToken {
