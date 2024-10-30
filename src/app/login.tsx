@@ -6,7 +6,7 @@ const Header = () => {
   const { data: session, status } = useSession();
   const loading = status === "loading";
 
-  console.log(session)
+  console.log("SESSION" + session)
 
   return (
     <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
