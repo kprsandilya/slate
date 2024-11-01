@@ -23,11 +23,13 @@ export async function GET(req: Request) {
         const $ = load(html); // Load the HTML into Cheerio
 
         // Perform your scraping here, modify the selector as needed
-        const data = $("div.epnew-novel-title").text() // Replace 'your-selector' with your actual selector
+        const title = $("div.epnew-novel-title").text() // Replace 'your-selector' with your actual selector
 
-        console.log("DATA: " + data)
+        const cover_img = $("img.cover_img").attr("src")
 
-        return NextResponse.json({ data }, { status: 200 });
+        console.log("DATA: " + cover_img)
+
+        return NextResponse.json({ title: title, img: cover_img }, { status: 200 });
     } catch (error) { 
         //console.error("Error scraping:", error);
         console.error("ERROR HAS OCCURRED")

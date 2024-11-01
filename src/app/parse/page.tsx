@@ -12,6 +12,7 @@ export default function HomePage() {
     const searchParams = useSearchParams();
     const [decoded, setDecoded] = useState("");
     const [title, setTitle] = useState("")
+    const [img, setImg] = useState("")
     const link = searchParams.get('query');
 
     useEffect(() => {
@@ -32,11 +33,12 @@ export default function HomePage() {
     }, [decoded]); // This effect runs when `decoded` changes
 
     async function scrapeSite(link: string) {
-        console.log("CLIENT: " + link);
         try {
             // Perform an HTTP GET request to your own API route
             const response = await axios.get(`/api/scrape?link=${encodeURIComponent(link)}`);
-            setTitle(response.data.data)
+            console.log(response.data);
+            setTitle(response.data.title);
+            setImg(response.data.img);
         } catch (error) {
             console.error("Error scraping the site:", error);
         }
