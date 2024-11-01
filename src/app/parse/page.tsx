@@ -10,34 +10,38 @@ import { load } from "cheerio"
 
 export default function HomePage() {
     const searchParams = useSearchParams();
-    const[decoded, setDecoded] = useState("");
+    const [decoded, setDecoded] = useState("");
+    const [title, setTitle] = useState("")
     const link = searchParams.get('query');
 
     useEffect(() => {
         const link = searchParams.get('query');
-        
+
         if (link) {
             setDecoded(atob(link)); // Decode the link and set the state
         } else {
             setDecoded("NOT A VALID LINK");
         }
-
-        scrapeSite(decoded)
-
     }, [searchParams]); // Dependency array to rerun effect when searchParams changes
 
+    // Add another useEffect to scrape the site when decoded changes
+    useEffect(() => {
+        if (decoded && decoded !== "NOT A VALID LINK") {
+            scrapeSite(decoded);
+        }
+    }, [decoded]); // This effect runs when `decoded` changes
+
     async function scrapeSite(link: string) {
-        console.log(link)
-        // perform an HTTP GET request to the target page
-        const response = await axios.get(link)
-        // get the HTML from the server response
-        // and log it
-        const html = response.data
-
-        const data = load(html)
-
-        console.log(data)
-      }
+        console.log("CLIENT: " + link);
+        try {
+            // Perform an HTTP GET request to your own API route
+            const response = await axios.get(`/api/scrape?link=${encodeURIComponent(link)}`);
+            setTitle(response.data.data)
+        } catch (error) {
+            console.error("Error scraping the site:", error);
+        }
+    }
+    
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
@@ -47,6 +51,13 @@ export default function HomePage() {
             </h1>
             <div className="flex items-center justify-center">
                 <h2>{decoded}</h2>
+            </div>
+            <div className="flex items-center justify-center">
+                {title && (
+                    <div className="initialized-div">
+                        <h2>{title}</h2>
+                    </div>
+                )}
             </div>
         </div>
         </main>
