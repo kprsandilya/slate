@@ -23,13 +23,25 @@ export async function GET(req: Request) {
         const $ = load(html); // Load the HTML into Cheerio
 
         // Perform your scraping here, modify the selector as needed
-        const title = $("div.epnew-novel-title").text() // Replace 'your-selector' with your actual selector
+        const title = $("div.epnew-novel-title").text(); // Replace 'your-selector' with your actual selector
 
-        const cover_img = $("img.cover_img").attr("src")
+        const cover_img = $("img.cover_img").attr("src");
+
+        const rows = $('tr[class ^= ep_style] td[onclick]');
+        console.log(rows.first().attr("onclick"));
+        if (rows.length === 0) {
+            console.log("No rows with class 'ep_style5' found");
+        }
+
+        const onclickAttr = rows.first().attr("onclick") ?? "";
+        const match = onclickAttr.match(/\/viewer\/(\d+)/);  // Find digits following "/viewer/"
+        const first_chapter = match ? parseInt(match[1] ?? "", 10) : NaN;
+
+        console.log("FIRST CHAPTER: " + first_chapter);
 
         console.log("DATA: " + cover_img)
 
-        return NextResponse.json({ title: title, img: cover_img }, { status: 200 });
+        return NextResponse.json({ title: title, img: cover_img, first_chapter: first_chapter }, { status: 200 });
     } catch (error) { 
         //console.error("Error scraping:", error);
         console.error("ERROR HAS OCCURRED")

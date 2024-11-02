@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.gradient-t3 {
+    background: linear-gradient(to bottom, #2e026d, #15162c);
+}
+
+.gradient-slate {
+    background: linear-gradient(to bottom, #1e293b, #b5bed2);
+}

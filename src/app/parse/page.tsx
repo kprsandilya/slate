@@ -6,14 +6,17 @@ import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 import axios from "axios"
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import { load } from "cheerio"
 
 export default function HomePage() {
     const searchParams = useSearchParams();
     const [decoded, setDecoded] = useState("");
-    const [title, setTitle] = useState("")
-    const [img, setImg] = useState("")
-    const link = searchParams.get('query');
+    const [title, setTitle] = useState("");
+    const [img, setImg] = useState("");
+    const [first_chapter, setFirst] = useState(0);
+
+    const router = useRouter();
 
     useEffect(() => {
         const link = searchParams.get('query');
@@ -39,29 +42,38 @@ export default function HomePage() {
             console.log(response.data);
             setTitle(response.data.title);
             setImg(response.data.img);
+            setFirst(response.data.first_chapter);
         } catch (error) {
             console.error("Error scraping the site:", error);
         }
     }
+
+    function switchPage () {
+        const encoded: string = "/novel?query=" + btoa("/viewer/" + first_chapter);
+        router.push(encoded);
+    }
     
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Your Link
-            </h1>
-            <div className="flex items-center justify-center">
-                <h2>{decoded}</h2>
+        <main className="flex min-h-screen flex-col items-center justify-center gradient-t3 text-white">
+            <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
+                <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+                    Your Link
+                </h1>
+                <div className="flex items-center justify-center">
+                    <h2>{decoded}</h2>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    {title && (
+                        <div className="flex flex-col items-center">
+                            <h2>{title}</h2>
+                            <button className="mt-4" onClick={switchPage}>
+                                Click here to continue processing if correct
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="flex items-center justify-center">
-                {title && (
-                    <div className="initialized-div">
-                        <h2>{title}</h2>
-                    </div>
-                )}
-            </div>
-        </div>
         </main>
     );
 }
