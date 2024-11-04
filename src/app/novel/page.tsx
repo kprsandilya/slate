@@ -20,31 +20,46 @@ export default function HomePage() {
 
     useEffect(() => {
         const link = searchParams.get('query');
+        const novel = searchParams.get('title');
 
         if (link) {
             setDecoded("https://novelpia.com" + atob(link)); // Decode the link and set the state
+            setTitle(novel ?? ""); // Decode the link and set the state
         } else {
             setDecoded("NOT A VALID LINK");
+            setTitle("NOT A VALID LINK");
         }
     }, [searchParams]); // Dependency array to rerun effect when searchParams changes
     
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center gradient-slate text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Your Link
-            </h1>
-            <div className="flex items-center justify-center">
-                {decoded && (
-                    <>
-                        <div className="">
-                            <h2>{decoded}</h2>
+        <main className="flex min-h-screen flex-col items-center justify-center slate text-white">
+            <div className="w-[1220px] centered">
+                <div className="grid grid-cols-3 w-full">
+                    <div className="bg-green-200 gap-4 p-4">
+                        <div className="flex items-center justify-center">
+                            {decoded && (
+                                <>
+                                    <div className="">
+                                        <h2>{decoded}</h2>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    </>
-                )}
+                    </div>
+                    <div className="bg-green-200 gap-4 p-4 col-span-2">
+                        <div className="flex items-center justify-center">
+                            {title && (
+                                <>
+                                    <div className="">
+                                        <h2>{title}</h2>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         </main>
     );
 }

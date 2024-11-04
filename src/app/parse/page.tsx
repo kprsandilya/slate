@@ -48,8 +48,14 @@ export default function HomePage() {
         }
     }
 
-    function switchPage () {
-        const encoded: string = "/novel?query=" + btoa("/viewer/" + first_chapter);
+    function switchPage() {
+        const firstChapterPath = btoa("/viewer/" + first_chapter);
+        const searchParams = new URLSearchParams({
+            query: firstChapterPath,
+            title: title, // Add any other parameters here
+        });
+    
+        const encoded: string = "/novel?" + searchParams.toString();
         router.push(encoded);
     }
     

@@ -7,5 +7,19 @@
 }
 
 .gradient-slate {
-    background: linear-gradient(to bottom, #1e293b, #b5bed2);
+    background: linear-gradient(to right, #000000, #334155);
+}
+
+.slate {
+    background: #1e293b;
+}
+
+.centered {
+    height: 40px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
