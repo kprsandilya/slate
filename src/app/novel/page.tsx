@@ -2,34 +2,57 @@
 
 //https://novelpia.com/novel/308608?sid=main5_con308608
 
-import Link from "next/link";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import axios from "axios"
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import { load } from "cheerio"
 
 export default function HomePage() {
     const searchParams = useSearchParams();
     const [decoded, setDecoded] = useState("");
+    const pathname = usePathname();
     const [title, setTitle] = useState("");
-    const [img, setImg] = useState("");
-    const [first_chapter, setFirst] = useState(0);
+    const [done, setDone] = useState(false);
 
     const router = useRouter();
 
     useEffect(() => {
         const link = searchParams.get('query');
         const novel = searchParams.get('title');
-
+    
+        console.log(link);
+    
         if (link) {
-            setDecoded("https://novelpia.com" + atob(link)); // Decode the link and set the state
-            setTitle(novel ?? ""); // Decode the link and set the state
+            const decodedLink = "https://novelpia.com" + atob(link); // Decode the link
+            setDecoded(decodedLink); // Set the decoded link
+            setTitle(novel ?? ""); // Set the title
+    
+            console.log("ATTRIBUTES: " + novel + " " + decodedLink); // Log the values directly
+    
+            // Check for conditions to call addNovel only once
+            if (novel && decodedLink && !done) {
+                addNovel(novel, decodedLink); // Pass both directly
+                setDone(true); // Move setDone here to ensure it only updates once
+            }
         } else {
             setDecoded("NOT A VALID LINK");
             setTitle("NOT A VALID LINK");
         }
-    }, [searchParams]); // Dependency array to rerun effect when searchParams changes
+    }, [searchParams, pathname, done]); // Add 'done' to dependencies
+    
+    
+
+    async function addNovel(title: string, decoded: string) {
+        try {
+            // Perform an HTTP GET request to your own API route
+            const response = await axios.get(`/api/getChapter?title=${title}&link=${decoded}`);
+            console.log("GOT RESPONSE")
+            setDone(true);
+            //console.log(response.data);
+        } catch (error) {
+            console.error("Error scraping the site:", error);
+        }
+    }
     
 
     return (
