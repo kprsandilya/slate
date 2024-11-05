@@ -29,7 +29,7 @@ model Post {
 model Novel {
     id        Int      @id @default(autoincrement())
     name      String   @unique
-    kr_name   String   @unique
+    tr_name   String   @unique
     image     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -42,15 +42,41 @@ model Novel {
     @@index([name])
 }
 
-model Chapter {
-    id        Int      @id @default(autoincrement())
-    kr        String
-    eng       String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model ChapterRead {
+    id        Int     @id @default(autoincrement())
+    userId    String
+    chapterId Int
+    readAt    DateTime @default(now())
 
-    novel     Novel   @relation(fields: [novelId], references: [id])
+    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, chapterId]) // Ensure a user can only have one record per chapter
+}
+
+model User {
+    id            String        @id @default(cuid())
+    name          String?
+    email         String?       @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]     // Accounts linked to the user
+    sessions      Session[]     // Sessions linked to the user
+    posts         Post[]        // Posts created by the user
+    novels        Novel[]       // Novels created by the user
+    chapterReads  ChapterRead[] // Chapters read by the user
+}
+
+model Chapter {
+    id        Int        @id @default(autoincrement())
+    tr        String
+    eng       String
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
     novelId   Int
+    novel     Novel      @relation(fields: [novelId], references: [id])
+
+    chapterReads ChapterRead[] // Users who have read this chapter
 
     @@index([eng])
 }
@@ -81,19 +107,6 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
-
-    novels        Novel[]
 }
 
 model VerificationToken {

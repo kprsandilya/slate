@@ -1,0 +1,9 @@
+Blocked Websites
+    Novelpia
+
+Blocked Websites Pages
+    Create the page that shows the link to the content but links to the novel source instead
+    Allow saving of novels in DB but create empty chapter arrays
+    Maybe allow them to mark which chapters they have read
+
+Need to create a marker that somehow determines if a user has read that chapter
