@@ -1,0 +1,24 @@
+async function addNovel(title: string) {
+    const existingNovel = await prisma.novel.findUnique({
+        where: {
+          name: title,  // 'title' is the string you are searching for
+        },
+      });
+    
+    // if (existingNovel) {
+    //     console.log("Novel already exists:", existingNovel);
+    //     return existingNovel; // Return the existing novel if found
+    // } else {
+    //     // If not found, create a new novel
+    //     const newNovel = await prisma.novel.create({
+    //         data: {
+    //             kr_name: title,
+    //             name: "",
+    //             image: "",
+    //             createdBy: "temp"
+    //         },
+    //     });
+    //     console.log("New novel created:", newNovel);
+    //     return newNovel;
+    // }
+}
