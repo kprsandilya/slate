@@ -1,70 +1,50 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 import { NextResponse } from 'next/server';
-import { getServerAuthSession } from "src/server/auth";
-import prisma from 'src/app/api/prismaInstance';
-import * as fs from 'fs';
-import puppeteer from 'puppeteer';
 
 export async function GET(req: Request) {
-    const browser = await puppeteer.launch({
-        headless: true, // Set to true to avoid developer mode
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const page = await browser.newPage();
+    // Parse the URL to get the query parameters
+    const url = new URL(req.url);
+    //console.log(req)
+    const link = url.searchParams.get('link'); // Get the 'link' query parameter
 
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36');
-    await page.setViewport({ width: 1280, height: 800 });
-    await page.goto('https://novelpia.com/');
+    console.log("LINK" + link)
 
-    // Step 1: Click the login icon
-    const loginIconSelector = '#naviconLeftMobile';
-    await page.waitForSelector(loginIconSelector, { visible: true });
-    await page.click(loginIconSelector);
+    if (!link) {
+        return NextResponse.json({ error: 'Link query parameter is required' }, { status: 400 });
+    }
 
-    // Step 2: Wait for the login form
-    const loginFormSelector = '#login_box';
-    await page.waitForSelector(loginFormSelector, { visible: true });
+    try {
+        const response = await axios.get(link); // Fetch the HTML from the provided link
+        const html = response.data;
 
-    // Step 4: Enter email and password in the popup
-    await page.type('input[name="email"]', 'kprsandilya@gmail.com'); // Replace with your email
-    await page.type('input[name="wd"]', '!2YJvpBJMqpVHfD'); // Replace with your password
+        //console.log(html)
 
-    // Step 4: Submit the login form
-    await Promise.all([
-        page.click('button[type="submit"]'),
-        page.waitForNavigation({ waitUntil: 'networkidle0' }),
-    ]);
+        const $ = load(html); // Load the HTML into Cheerio
 
-    // Step 5: Wait for the alert and accept
-    page.on('dialog', async dialog => {
-        console.log('Alert message:', dialog.message());
-        await dialog.accept();
-    });
+        // Perform your scraping here, modify the selector as needed
+        const title = $("div.epnew-novel-title").text(); // Replace 'your-selector' with your actual selector
 
-    // Step 6: Navigate to the content page
-    await page.goto('https://novelpia.com/viewer/3929317', { waitUntil: 'networkidle0' });
+        const cover_img = $("img.cover_img").attr("src");
 
-    // Step 7: Retrieve the page content
-    const content = await page.evaluate(() => {
-        return document; // Replace with actual content selector
-    });
-
-    console.log(document)
-    writeToFile('./temp.html', "a");
-
-    await browser.close();
-
-    return NextResponse.json({ title: "scrapedTitle", img: "coverImg" }, { status: 200 });
-}
-
-// Function to write to a file
-function writeToFile(filename: string, content: string): void {
-    fs.writeFile(filename, content, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-        } else {
-            console.log(`File written successfully: ${filename}`);
+        const rows = $('tr[class ^= ep_style] td[onclick]');
+        console.log(rows.first().attr("onclick"));
+        if (rows.length === 0) {
+            console.log("No rows with class 'ep_style5' found");
         }
-    });
+
+        const onclickAttr = rows.first().attr("onclick") ?? "";
+        const match = onclickAttr.match(/\/viewer\/(\d+)/);  // Find digits following "/viewer/"
+        const first_chapter = match ? parseInt(match[1] ?? "", 10) : NaN;
+
+        console.log("FIRST CHAPTER: " + first_chapter);
+
+        console.log("DATA: " + cover_img)
+
+        return NextResponse.json({ title: title, img: cover_img, first_chapter: first_chapter }, { status: 200 });
+    } catch (error) { 
+        //console.error("Error scraping:", error);
+        console.error("ERROR HAS OCCURRED")
+        return NextResponse.json({ error: "Failed to scrape the site" }, { status: 500 });
+    }
 }

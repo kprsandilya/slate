@@ -6,4 +6,4 @@ Blocked Websites Pages
     Allow saving of novels in DB but create empty chapter arrays
     Maybe allow them to mark which chapters they have read
 
-Need to create a marker that somehow determines if a user has read that chapter
+Need to create a marker that somehow determines if a user has read that chapter (ChapterRead)

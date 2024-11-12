@@ -9,6 +9,16 @@ import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { load } from "cheerio"
 
+function checkValidWebsite(link: string) {
+    const invalid: string[] = ["novelpia"];
+    for (var string in invalid) {
+        if (link.includes(string)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export default function HomePage() {
     const searchParams = useSearchParams();
     const [decoded, setDecoded] = useState("");
@@ -19,10 +29,10 @@ export default function HomePage() {
     const router = useRouter();
 
     useEffect(() => {
-        const link = searchParams.get('query');
+        const temp = searchParams.get('query');
 
-        if (link) {
-            setDecoded(atob(link)); // Decode the link and set the state
+        if (temp) {
+            setDecoded(atob(temp)); // Decode the link and set the state
         } else {
             setDecoded("NOT A VALID LINK");
         }
@@ -49,7 +59,13 @@ export default function HomePage() {
     }
 
     function switchPage() {
-        const firstChapterPath = btoa("/viewer/" + first_chapter);
+        var temp = "";
+        if (checkValidWebsite(decoded)) {
+            //Where website can be parsed
+        } else {
+            temp = btoa(decoded);
+        }
+        const firstChapterPath = temp;
         const searchParams = new URLSearchParams({
             query: firstChapterPath,
             title: title, // Add any other parameters here
@@ -73,9 +89,11 @@ export default function HomePage() {
                     {title && (
                         <div className="flex flex-col items-center">
                             <h2>{title}</h2>
-                            <button className="mt-4" onClick={switchPage}>
-                                Click here to continue processing if correct
-                            </button>
+                            {(
+                                <button className="mt-4" onClick={switchPage}>
+                                    Click here to continue processing if correct
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
